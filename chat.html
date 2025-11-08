@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI聊天 - 刘奕杞宝宝的日常吐槽站</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">刘奕杞宝宝的日常吐槽站</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="chat.html" class="active">AI聊天</a></li>
+                <li><a href="mood.html">今日心情</a></li>
+                <li><a href="encouragement.html">鼓励话语</a></li>
+                <li><a href="message.html">留言板</a></li>
+                <li><a href="todo.html">待办清单</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-container">
+            <h1 class="page-title">💬 AI聊天助手</h1>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            你好！我是你的AI助手，有什么想聊的吗？我会尽力帮助你，给你鼓励和支持！✨
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="输入你想说的话..." />
+                    <button class="send-button" id="sendButton">发送</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="common.js"></script>
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+
+        // 鼓励话语库
+        const encouragements = [
+            "你很棒！继续加油！💪",
+            "你已经做得很好了，相信自己！✨",
+            "每一天都是新的开始，保持积极的心态！🌞",
+            "困难只是暂时的，你一定能克服的！🌟",
+            "你的努力我都看在眼里，继续坚持！💖",
+            "不要害怕失败，每一次尝试都是成长！🌱",
+            "你是最棒的，相信自己！🎉",
+            "保持微笑，一切都会好起来的！😊",
+            "你的坚持会带来美好的结果！🌈",
+            "加油！我一直在支持你！💕"
+        ];
+
+        // 简单的AI回复逻辑
+        function getAIResponse(userMessage) {
+            const message = userMessage.toLowerCase();
+            
+            // 关键词匹配回复
+            if (message.includes('你好') || message.includes('hello') || message.includes('hi')) {
+                return "你好呀！很高兴和你聊天！有什么想说的吗？😊";
+            }
+            
+            if (message.includes('累') || message.includes('疲惫') || message.includes('辛苦')) {
+                return "辛苦啦！记得要好好休息，照顾好自己。你真的很努力咯，所以也要注意放松自己诶！💪";
+            }
+            
+            if (message.includes('难过') || message.includes('伤心') || message.includes('不开心')) {
+                return "抱抱你～难过的时候说出来会好受一些。你并不孤单哈，我会一直陪着你。一切都会好起来的！💕";
+            }
+            
+            if (message.includes('开心') || message.includes('高兴') || message.includes('快乐')) {
+                return "太好了！看到你开心我也很开心！继续保持这份好心情吧！🎉";
+            }
+            
+            if (message.includes('谢谢') || message.includes('感谢')) {
+                return "不客气！能帮到你我很开心。你可值得被关心和爱护！💖";
+            }
+            
+            if (message.includes('鼓励') || message.includes('加油')) {
+                return encouragements[Math.floor(Math.random() * encouragements.length)];
+            }
+            
+            if (message.includes('爱') || message.includes('喜欢')) {
+                return "我也很喜欢和你对话！你是一个很棒的人，值得被爱！💕";
+            }
+            
+            // 默认回复
+            const defaultResponses = [
+                "我理解你的感受，继续说吧，我在认真听。💭",
+                "听起来你有很多想法呢，能和我分享更多吗？🤔",
+                "无论发生什么，我都会支持你的！💪",
+                "你的想法很重要，我会认真对待的。✨",
+                encouragements[Math.floor(Math.random() * encouragements.length)]
+            ];
+            
+            return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+        }
+
+        function addMessage(content, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'ai'}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.textContent = isUser ? '👤' : '🤖';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = 'message-content';
+            messageContent.textContent = content;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(messageContent);
+            chatMessages.appendChild(messageDiv);
+            
+            // 滚动到底部
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+            
+            // 添加用户消息
+            addMessage(message, true);
+            chatInput.value = '';
+            
+            // 禁用发送按钮
+            sendButton.disabled = true;
+            sendButton.textContent = '思考中...';
+            
+            // 模拟AI思考时间
+            setTimeout(() => {
+                const aiResponse = getAIResponse(message);
+                addMessage(aiResponse, false);
+                
+                // 恢复发送按钮
+                sendButton.disabled = false;
+                sendButton.textContent = '发送';
+            }, 500 + Math.random() * 1000);
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
+

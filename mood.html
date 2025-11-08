@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今日心情 - 刘奕杞宝宝的日常吐槽站</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">刘奕杞宝宝的日常吐槽站</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="chat.html">AI聊天</a></li>
+                <li><a href="mood.html" class="active">今日心情</a></li>
+                <li><a href="encouragement.html">鼓励话语</a></li>
+                <li><a href="message.html">留言板</a></li>
+                <li><a href="todo.html">待办清单</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-container">
+            <h1 class="page-title">😊 记录今日心情</h1>
+            
+            <form class="mood-form" id="moodForm">
+                <div class="mood-selector" id="moodSelector">
+                    <div class="mood-option" data-mood="very-happy">
+                        <div class="mood-emoji">😄</div>
+                        <div class="mood-label">非常开心</div>
+                    </div>
+                    <div class="mood-option" data-mood="happy">
+                        <div class="mood-emoji">😊</div>
+                        <div class="mood-label">开心</div>
+                    </div>
+                    <div class="mood-option" data-mood="neutral">
+                        <div class="mood-emoji">😐</div>
+                        <div class="mood-label">一般</div>
+                    </div>
+                    <div class="mood-option" data-mood="sad">
+                        <div class="mood-emoji">😔</div>
+                        <div class="mood-label">难过</div>
+                    </div>
+                    <div class="mood-option" data-mood="very-sad">
+                        <div class="mood-emoji">😢</div>
+                        <div class="mood-label">非常难过</div>
+                    </div>
+                </div>
+                
+                <div class="textarea-container">
+                    <label class="textarea-label" for="moodText">写下今天的心情和想法：</label>
+                    <textarea class="textarea" id="moodText" placeholder="今天发生了什么？有什么想说的吗？"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-button">保存心情</button>
+            </form>
+            
+            <div class="mood-history" id="moodHistory">
+                <h2 class="history-title">心情记录历史</h2>
+                <div id="moodEntries"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="common.js"></script>
+    <script>
+        let selectedMood = null;
+        const moodOptions = document.querySelectorAll('.mood-option');
+        const moodForm = document.getElementById('moodForm');
+        const moodText = document.getElementById('moodText');
+        const moodEntries = document.getElementById('moodEntries');
+
+        // 心情emoji映射
+        const moodEmojiMap = {
+            'very-happy': '😄',
+            'happy': '😊',
+            'neutral': '😐',
+            'sad': '😔',
+            'very-sad': '😢'
+        };
+
+        const moodLabelMap = {
+            'very-happy': '非常开心',
+            'happy': '开心',
+            'neutral': '一般',
+            'sad': '难过',
+            'very-sad': '非常难过'
+        };
+
+        // 选择心情
+        moodOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                moodOptions.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedMood = this.dataset.mood;
+            });
+        });
+
+        // 提交表单
+        moodForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!selectedMood) {
+                alert('请先选择你的心情！');
+                return;
+            }
+            
+            const text = moodText.value.trim();
+            if (!text) {
+                alert('请写下你的心情和想法！');
+                return;
+            }
+            
+            const moodEntry = {
+                id: Date.now(),
+                mood: selectedMood,
+                text: text,
+                date: new Date()
+            };
+            
+            // 保存到localStorage
+            const entries = getStorageData('moodEntries');
+            entries.unshift(moodEntry);
+            saveStorageData('moodEntries', entries);
+            
+            // 重置表单
+            moodOptions.forEach(opt => opt.classList.remove('selected'));
+            selectedMood = null;
+            moodText.value = '';
+            
+            // 刷新显示
+            displayMoodEntries();
+            
+            alert('心情记录已保存！💕');
+        });
+
+        // 显示心情记录
+        function displayMoodEntries() {
+            const entries = getStorageData('moodEntries');
+            
+            if (entries.length === 0) {
+                moodEntries.innerHTML = '<div class="empty-state">还没有心情记录，快来记录你的第一份心情吧！</div>';
+                return;
+            }
+            
+            moodEntries.innerHTML = entries.map(entry => {
+                const date = new Date(entry.date);
+                return `
+                    <div class="mood-entry">
+                        <div class="mood-entry-header">
+                            <div class="mood-entry-emoji">${moodEmojiMap[entry.mood]}</div>
+                            <div class="mood-entry-date">${formatDate(date)}</div>
+                        </div>
+                        <div class="mood-entry-text">${entry.text}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 初始化显示
+        displayMoodEntries();
+    </script>
+</body>
+</html>
+

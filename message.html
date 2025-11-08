@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>留言板 - 刘奕杞宝宝的日常吐槽站</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">刘奕杞宝宝的日常吐槽站</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="chat.html">AI聊天</a></li>
+                <li><a href="mood.html">今日心情</a></li>
+                <li><a href="encouragement.html">鼓励话语</a></li>
+                <li><a href="message.html" class="active">留言板</a></li>
+                <li><a href="todo.html">待办清单</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-container">
+            <h1 class="page-title">📝 留言板</h1>
+            
+            <form class="message-form" id="messageForm">
+                <input type="text" class="message-input" id="authorInput" placeholder="你的名字（可选）" />
+                <textarea class="message-input" id="messageInput" placeholder="写下你想说的话..." required></textarea>
+                <button type="submit" class="submit-button">发布留言</button>
+            </form>
+            
+            <div class="message-list" id="messageList"></div>
+        </div>
+    </main>
+
+    <script src="common.js"></script>
+    <script>
+        const messageForm = document.getElementById('messageForm');
+        const authorInput = document.getElementById('authorInput');
+        const messageInput = document.getElementById('messageInput');
+        const messageList = document.getElementById('messageList');
+
+        // 提交留言
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const author = authorInput.value.trim() || '匿名用户';
+            const content = messageInput.value.trim();
+            
+            if (!content) {
+                alert('请输入留言内容！');
+                return;
+            }
+            
+            const message = {
+                id: Date.now(),
+                author: author,
+                content: content,
+                date: new Date()
+            };
+            
+            // 保存到localStorage
+            const messages = getStorageData('messages');
+            messages.unshift(message);
+            saveStorageData('messages', messages);
+            
+            // 重置表单
+            authorInput.value = '';
+            messageInput.value = '';
+            
+            // 刷新显示
+            displayMessages();
+            
+            alert('留言已发布！💕');
+        });
+
+        // 显示留言
+        function displayMessages() {
+            const messages = getStorageData('messages');
+            
+            if (messages.length === 0) {
+                messageList.innerHTML = '<div class="empty-state">还没有留言，快来留下第一条留言吧！</div>';
+                return;
+            }
+            
+            messageList.innerHTML = messages.map(message => {
+                const date = new Date(message.date);
+                return `
+                    <div class="message-item">
+                        <div class="message-item-header">
+                            <span class="message-item-author">${message.author}</span>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <span class="message-item-date">${formatDate(date)}</span>
+                                <button class="delete-button" onclick="deleteMessage(${message.id})">删除</button>
+                            </div>
+                        </div>
+                        <div class="message-item-content">${message.content}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 删除留言
+        function deleteMessage(id) {
+            if (confirm('确定要删除这条留言吗？')) {
+                const messages = getStorageData('messages');
+                const filtered = messages.filter(msg => msg.id !== id);
+                saveStorageData('messages', filtered);
+                displayMessages();
+            }
+        }
+
+        // 初始化显示
+        displayMessages();
+    </script>
+</body>
+</html>
+

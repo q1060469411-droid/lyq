@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待办清单 - 刘奕杞宝宝的日常吐槽站</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">刘奕杞宝宝的日常吐槽站</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="chat.html">AI聊天</a></li>
+                <li><a href="mood.html">今日心情</a></li>
+                <li><a href="encouragement.html">鼓励话语</a></li>
+                <li><a href="message.html">留言板</a></li>
+                <li><a href="todo.html" class="active">待办清单</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-container">
+            <h1 class="page-title">✅ 待办清单</h1>
+            
+            <form class="todo-form" id="todoForm">
+                <input type="text" class="todo-input" id="todoInput" placeholder="输入新的待办事项..." required />
+                <button type="submit" class="submit-button">添加</button>
+            </form>
+            
+            <div class="todo-list" id="todoList"></div>
+        </div>
+    </main>
+
+    <script src="common.js"></script>
+    <script>
+        const todoForm = document.getElementById('todoForm');
+        const todoInput = document.getElementById('todoInput');
+        const todoList = document.getElementById('todoList');
+
+        // 提交待办事项
+        todoForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const text = todoInput.value.trim();
+            if (!text) {
+                alert('请输入待办事项！');
+                return;
+            }
+            
+            const todo = {
+                id: Date.now(),
+                text: text,
+                completed: false,
+                date: new Date()
+            };
+            
+            // 保存到localStorage
+            const todos = getStorageData('todos');
+            todos.unshift(todo);
+            saveStorageData('todos', todos);
+            
+            // 重置输入
+            todoInput.value = '';
+            
+            // 刷新显示
+            displayTodos();
+        });
+
+        // 显示待办事项
+        function displayTodos() {
+            const todos = getStorageData('todos');
+            
+            if (todos.length === 0) {
+                todoList.innerHTML = '<div class="empty-state">还没有待办事项，快来添加第一个任务吧！</div>';
+                return;
+            }
+            
+            // 按完成状态和日期排序（未完成的在前，新的在前）
+            const sortedTodos = [...todos].sort((a, b) => {
+                if (a.completed !== b.completed) {
+                    return a.completed ? 1 : -1;
+                }
+                return new Date(b.date) - new Date(a.date);
+            });
+            
+            todoList.innerHTML = sortedTodos.map(todo => {
+                const date = new Date(todo.date);
+                return `
+                    <div class="todo-item ${todo.completed ? 'completed' : ''}">
+                        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} 
+                               onchange="toggleTodo(${todo.id})" />
+                        <span class="todo-text">${todo.text}</span>
+                        <span class="todo-date">${formatDate(date)}</span>
+                        <button class="todo-delete" onclick="deleteTodo(${todo.id})">删除</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 切换完成状态
+        function toggleTodo(id) {
+            const todos = getStorageData('todos');
+            const todo = todos.find(t => t.id === id);
+            if (todo) {
+                todo.completed = !todo.completed;
+                saveStorageData('todos', todos);
+                displayTodos();
+            }
+        }
+
+        // 删除待办事项
+        function deleteTodo(id) {
+            if (confirm('确定要删除这个待办事项吗？')) {
+                const todos = getStorageData('todos');
+                const filtered = todos.filter(t => t.id !== id);
+                saveStorageData('todos', filtered);
+                displayTodos();
+            }
+        }
+
+        // 初始化显示
+        displayTodos();
+    </script>
+</body>
+</html>
+

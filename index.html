@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刘奕杞宝宝的日常吐槽站</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">刘奕杞宝宝的日常吐槽站</div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="active">首页</a></li>
+                <li><a href="chat.html">AI聊天</a></li>
+                <li><a href="mood.html">今日心情</a></li>
+                <li><a href="encouragement.html">鼓励话语</a></li>
+                <li><a href="message.html">留言板</a></li>
+                <li><a href="todo.html">待办清单</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="welcome-container">
+            <h1 class="welcome-title">欢迎来到刘奕杞宝宝的日常吐槽站</h1>
+            <div class="days-counter" id="daysCounter">
+                <p class="days-text">今天是稳定服务刘奕杞宝宝的第 <span id="daysNumber">0</span> 天</p>
+            </div>
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <div class="card-icon">💬</div>
+                    <h3>AI聊天</h3>
+                    <p>和AI助手聊聊天，倾诉你的心声</p>
+                    <a href="chat.html" class="card-link">去聊天 →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="card-icon">😊</div>
+                    <h3>今日心情</h3>
+                    <p>记录每一天的心情变化</p>
+                    <a href="mood.html" class="card-link">记录心情 →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="card-icon">✨</div>
+                    <h3>鼓励话语</h3>
+                    <p>获取温暖的鼓励和正能量</p>
+                    <a href="encouragement.html" class="card-link">获取鼓励 →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="card-icon">📝</div>
+                    <h3>留言板</h3>
+                    <p>留下你想说的话</p>
+                    <a href="message.html" class="card-link">去留言 →</a>
+                </div>
+                <div class="feature-card">
+                    <div class="card-icon">✅</div>
+                    <h3>待办清单</h3>
+                    <p>管理你的任务和目标</p>
+                    <a href="todo.html" class="card-link">查看清单 →</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="common.js"></script>
+    <script>
+        // 计算天数
+        function calculateDays() {
+            const startDate = new Date('2025-11-09');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            startDate.setHours(0, 0, 0, 0);
+            
+            const diffTime = today - startDate;
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            // 如果日期还没到，返回1
+            const days = diffDays >= 0 ? diffDays + 1 : 1;
+            document.getElementById('daysNumber').textContent = days;
+        }
+        
+        calculateDays();
+    </script>
+</body>
+</html>
+

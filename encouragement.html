@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鼓励话语 - 刘奕杞宝宝的日常吐槽站</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">刘奕杞宝宝的日常吐槽站</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="chat.html">AI聊天</a></li>
+                <li><a href="mood.html">今日心情</a></li>
+                <li><a href="encouragement.html" class="active">鼓励话语</a></li>
+                <li><a href="message.html">留言板</a></li>
+                <li><a href="todo.html">待办清单</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-container">
+            <h1 class="page-title">✨ 鼓励话语</h1>
+            
+            <div class="encouragement-container">
+                <div class="encouragement-card" id="encouragementCard">
+                    <div class="encouragement-text" id="encouragementText">
+                        每一天都是新的开始，保持积极的心态，你一定能做到最好！💪
+                    </div>
+                    <div class="encouragement-author" id="encouragementAuthor">— 给你的鼓励</div>
+                </div>
+                
+                <button class="refresh-button" id="refreshButton">换一句鼓励的话</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="common.js"></script>
+    <script>
+        const encouragementText = document.getElementById('encouragementText');
+        const encouragementAuthor = document.getElementById('encouragementAuthor');
+        const refreshButton = document.getElementById('refreshButton');
+
+        // 鼓励话语库
+        const encouragements = [
+            {
+                text: "每一天都是新的开始，保持积极的心态，你一定能做到最好！💪",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "你已经做得很好了，相信自己，继续加油！✨",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "困难只是暂时的，你的坚持会带来美好的结果！🌟",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "不要害怕失败，每一次尝试都是成长的机会！🌱",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "你是最棒的，保持微笑，一切都会好起来的！😊",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "你的努力我都看在眼里，继续坚持，成功就在前方！💖",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "保持初心，勇敢前行，你值得拥有最好的！🌈",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "无论遇到什么困难，都要相信自己有能力克服！💪",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "每一天的努力都在为未来的美好铺路，加油！✨",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "你是一个很棒的人，值得被爱，值得拥有幸福！💕",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "不要给自己太大压力，你已经做得很好了！😊",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "保持乐观，积极面对，美好的事情正在发生！🌟",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "你的坚持和努力会开出最美的花朵！🌸",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "记住，你并不孤单，我会一直支持你！💖",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "相信自己，你有无限的可能性和潜力！🚀",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "每一个小进步都值得庆祝，你真的很棒！🎉",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "保持耐心，美好的事情需要时间，但一定会到来！⏰",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "你的笑容是最美的，保持开心，一切都会顺利！😄",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "不要放弃，坚持就是胜利，你一定能行！💪",
+                author: "— 给你的鼓励"
+            },
+            {
+                text: "你是独一无二的，做最真实的自己就好！✨",
+                author: "— 给你的鼓励"
+            }
+        ];
+
+        let currentIndex = 0;
+
+        function showEncouragement() {
+            const encouragement = encouragements[currentIndex];
+            encouragementText.textContent = encouragement.text;
+            encouragementAuthor.textContent = encouragement.author;
+        }
+
+        function getRandomEncouragement() {
+            // 确保不连续显示相同的鼓励
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * encouragements.length);
+            } while (newIndex === currentIndex && encouragements.length > 1);
+            
+            currentIndex = newIndex;
+            showEncouragement();
+        }
+
+        refreshButton.addEventListener('click', function() {
+            // 添加点击动画
+            refreshButton.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                refreshButton.style.transform = 'scale(1)';
+                getRandomEncouragement();
+            }, 100);
+        });
+
+        // 初始化显示
+        currentIndex = Math.floor(Math.random() * encouragements.length);
+        showEncouragement();
+    </script>
+</body>
+</html>
+
