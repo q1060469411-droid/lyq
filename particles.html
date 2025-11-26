@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D粒子互动 - 刘奕杞宝宝的日常吐槽站</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">刘奕杞宝宝的日常吐槽站</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="chat.html">AI聊天</a></li>
+                <li><a href="mood.html">今日心情</a></li>
+                <li><a href="encouragement.html">鼓励话语</a></li>
+                <li><a href="message.html">留言板</a></li>
+                <li><a href="todo.html">待办清单</a></li>
+                <li><a href="particles.html" class="active">3D粒子</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="page-container particle-page">
+            <h1 class="page-title">🌌 3D 粒子互动空间</h1>
+            <p class="particle-subtitle">打开摄像头，双手张合控制粒子缩放 / 扩散，选择喜欢的模型和颜色～</p>
+
+            <div class="particle-layout">
+                <div class="particle-view">
+                    <div id="particleCanvas" class="particle-canvas"></div>
+                    <video id="handVideo" playsinline class="hand-video" muted></video>
+                    <div class="particle-status" id="particleStatus">等待摄像头权限...</div>
+                </div>
+
+                <div class="particle-controls">
+                    <div class="control-group">
+                        <label class="control-label" for="modelSelect">粒子模型</label>
+                        <select id="modelSelect" class="control-select">
+                            <option value="heart">爱心</option>
+                            <option value="flower">花朵</option>
+                            <option value="saturn">土星</option>
+                            <option value="fireworks">烟花</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label" for="colorPicker">粒子颜色</label>
+                        <input type="color" id="colorPicker" class="control-color" value="#ffffff">
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">手势提示</label>
+                        <ul class="gesture-tips">
+                            <li>双手合拢：粒子收缩集中</li>
+                            <li>双手张开：粒子向外扩散</li>
+                            <li>尝试左右移动双手，让粒子轻轻摆动</li>
+                        </ul>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">当前状态</label>
+                        <div class="gesture-state" id="gestureState">未检测到双手</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 三方库：Three.js & MediaPipe Hands -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+    <script src="common.js"></script>
+    <script src="particles.js"></script>
+</body>
+</html>
+
+
