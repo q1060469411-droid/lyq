@@ -25,13 +25,12 @@
     <main class="main-content">
         <div class="page-container particle-page">
             <h1 class="page-title">🌌 3D 粒子互动空间</h1>
-            <p class="particle-subtitle">打开摄像头，双手张合控制粒子缩放 / 扩散，选择喜欢的模型和颜色～</p>
+            <p class="particle-subtitle">用手指在画面上点击和拖动，控制粒子的收缩、扩散与轻轻摆动～</p>
 
             <div class="particle-layout">
                 <div class="particle-view">
                     <div id="particleCanvas" class="particle-canvas"></div>
-                    <video id="handVideo" playsinline class="hand-video" muted></video>
-                    <div class="particle-status" id="particleStatus">等待摄像头权限...</div>
+                    <div class="particle-status" id="particleStatus">单击收缩、双击扩散、按住拖动让粒子轻轻摆动</div>
                 </div>
 
                 <div class="particle-controls">
@@ -51,31 +50,30 @@
                     </div>
 
                     <div class="control-group">
-                        <label class="control-label">手势提示</label>
+                        <label class="control-label">交互提示</label>
                         <ul class="gesture-tips">
-                            <li>双手合拢：粒子收缩集中</li>
-                            <li>双手张开：粒子向外扩散</li>
-                            <li>尝试左右移动双手，让粒子轻轻摆动</li>
+                            <li>单击画面：粒子收缩集中</li>
+                            <li>双击画面：粒子向外扩散</li>
+                            <li>按住拖动：让粒子整体轻轻摆动</li>
                         </ul>
                     </div>
 
                     <div class="control-group">
                         <label class="control-label">当前状态</label>
-                        <div class="gesture-state" id="gestureState">未检测到双手</div>
+                        <div class="gesture-state" id="gestureState">等待你的操作</div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- 三方库：Three.js & MediaPipe Hands -->
+    <!-- 三方库：Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
     <script src="common.js"></script>
     <script src="particles.js"></script>
 </body>
 </html>
+
 
 

@@ -1,15 +1,14 @@
 // 3D 粒子互动系统
-// 依赖：Three.js、MediaPipe Hands（通过 CDN 在 particles.html 中引入）
+// 依赖：Three.js（通过 CDN 在 particles.html 中引入）
 
 (function () {
     const canvasContainer = document.getElementById('particleCanvas');
-    const videoElement = document.getElementById('handVideo');
     const statusEl = document.getElementById('particleStatus');
     const gestureStateEl = document.getElementById('gestureState');
     const modelSelect = document.getElementById('modelSelect');
     const colorPicker = document.getElementById('colorPicker');
 
-    if (!canvasContainer || !videoElement) return;
+    if (!canvasContainer) return;
 
     let renderer, scene, camera;
     let particles;
@@ -17,7 +16,7 @@
     let basePositions = null;
     let spreadFactor = 1.0;
     let targetSpreadFactor = 1.0;
-    let swayOffset = 0;
+    let manualSway = 0; // 由拖拽控制的轻微摆动
 
     const particleCount = 2000;
 
@@ -162,8 +161,8 @@
     function updateParticlePositions(deltaTime) {
         if (!particles || !basePositions) return;
         const positions = particles.geometry.attributes.position.array;
-        swayOffset += deltaTime * 0.3;
-        const sway = Math.sin(swayOffset) * 2.0;
+        // 拖拽产生的轻微左右偏移，随时间慢慢衰减
+        const sway = manualSway;
 
         for (let i = 0; i < particleCount; i++) {
             const bx = basePositions[i * 3];
@@ -175,83 +174,6 @@
             positions[i * 3 + 2] = bz * spreadFactor;
         }
         particles.geometry.attributes.position.needsUpdate = true;
-    }
-
-    // 手势 → spreadFactor 的映射
-    let lastGestureUpdate = 0;
-
-    function updateSpreadFromHands(results) {
-        const now = performance.now();
-        if (now - lastGestureUpdate < 40) return;
-        lastGestureUpdate = now;
-
-        if (!results || !results.multiHandLandmarks || results.multiHandLandmarks.length < 2) {
-            gestureStateEl.textContent = '未检测到双手';
-            targetSpreadFactor = 1.0;
-            return;
-        }
-
-        const hand1 = results.multiHandLandmarks[0];
-        const hand2 = results.multiHandLandmarks[1];
-
-        const p1 = hand1[8];
-        const p2 = hand2[8];
-
-        const dx = p1.x - p2.x;
-        const dy = p1.y - p2.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        const minD = 0.05;
-        const maxD = 0.45;
-        const t = Math.min(1, Math.max(0, (dist - minD) / (maxD - minD)));
-        const minSpread = 0.6;
-        const maxSpread = 2.0;
-        targetSpreadFactor = minSpread + t * (maxSpread - minSpread);
-
-        if (t < 0.2) {
-            gestureStateEl.textContent = '双手靠近：粒子收缩中';
-        } else if (t > 0.8) {
-            gestureStateEl.textContent = '双手张开：粒子扩散中';
-        } else {
-            gestureStateEl.textContent = '检测到双手：轻轻移动感受粒子律动';
-        }
-    }
-
-    // MediaPipe Hands 初始化
-    function initHands() {
-        if (!window.Hands || !window.Camera) {
-            statusEl.textContent = 'MediaPipe 加载失败，请检查网络后刷新页面';
-            return;
-        }
-
-        const hands = new Hands({
-            locateFile: (file) =>
-                `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-        });
-
-        hands.setOptions({
-            maxNumHands: 2,
-            modelComplexity: 1,
-            minDetectionConfidence: 0.6,
-            minTrackingConfidence: 0.6
-        });
-
-        hands.onResults((results) => {
-            statusEl.textContent = '摄像头已开启，尝试双手张合控制粒子吧～';
-            updateSpreadFromHands(results);
-        });
-
-        const camera = new Camera(videoElement, {
-            onFrame: async () => {
-                await hands.send({ image: videoElement });
-            },
-            width: 640,
-            height: 480
-        });
-
-        camera.start().catch(() => {
-            statusEl.textContent = '无法访问摄像头，请检查权限设置';
-        });
     }
 
     // 动画循环
@@ -267,11 +189,14 @@
         const lerpSpeed = 4.0;
         spreadFactor += (targetSpreadFactor - spreadFactor) * Math.min(1, delta * lerpSpeed);
 
+        // 手指拖动产生的摆动缓慢衰减
+        manualSway += (0 - manualSway) * Math.min(1, delta * 1.5);
+
         updateParticlePositions(delta);
         renderer.render(scene, camera);
     }
 
-    // 事件绑定
+    // 事件绑定（UI + 鼠标 / 触摸交互）
     function bindUI() {
         modelSelect.addEventListener('change', () => {
             createParticleSystem(modelSelect.value, colorPicker.value);
@@ -282,13 +207,89 @@
                 particleMaterial.color.set(colorPicker.value);
             }
         });
+
+        // 交互：单击收缩、双击扩散、拖动轻轻摆动
+        const canvasEl = renderer ? renderer.domElement : canvasContainer;
+        if (!canvasEl) return;
+
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let lastX = 0;
+        let lastClickTime = 0;
+        let clickTimer = null;
+
+        function handlePointerDown(e) {
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            lastX = e.clientX;
+            canvasEl.setPointerCapture && canvasEl.setPointerCapture(e.pointerId);
+        }
+
+        function handlePointerMove(e) {
+            if (!isDragging) return;
+            const dx = e.clientX - lastX;
+            lastX = e.clientX;
+            manualSway += dx * 0.05;
+            manualSway = Math.max(-4, Math.min(4, manualSway));
+            gestureStateEl.textContent = '拖动中：粒子轻轻摆动';
+        }
+
+        function handlePointerUp(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            canvasEl.releasePointerCapture && canvasEl.releasePointerCapture(e.pointerId);
+
+            const moveDx = e.clientX - dragStartX;
+            const moveDy = e.clientY - dragStartY;
+            const moved = Math.hypot(moveDx, moveDy);
+
+            // 认为移动很小才算点击
+            if (moved < 5) {
+                const now = performance.now();
+                if (now - lastClickTime < 260) {
+                    // 双击
+                    clearTimeout(clickTimer);
+                    lastClickTime = 0;
+                    onDoubleClick();
+                } else {
+                    lastClickTime = now;
+                    clickTimer = setTimeout(() => {
+                        onSingleClick();
+                    }, 260);
+                }
+            }
+        }
+
+        function handlePointerLeave() {
+            isDragging = false;
+        }
+
+        function onSingleClick() {
+            // 收缩集中
+            targetSpreadFactor = 0.6;
+            gestureStateEl.textContent = '单击：粒子收缩集中';
+        }
+
+        function onDoubleClick() {
+            // 向外扩散
+            targetSpreadFactor = 2.0;
+            gestureStateEl.textContent = '双击：粒子向外扩散';
+        }
+
+        canvasEl.addEventListener('pointerdown', handlePointerDown);
+        canvasEl.addEventListener('pointermove', handlePointerMove);
+        canvasEl.addEventListener('pointerup', handlePointerUp);
+        canvasEl.addEventListener('pointercancel', handlePointerLeave);
+        canvasEl.addEventListener('pointerleave', handlePointerLeave);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         initThree();
         bindUI();
-        initHands();
     });
 })();
+
 
 
